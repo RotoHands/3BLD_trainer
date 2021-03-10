@@ -15,6 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 
+"""
 def genScra():
     browser = webdriver.Chrome(ChromeDriverManager().install())
     browser.get("https://cstimer.net")
@@ -31,14 +32,14 @@ def genScra():
                 file.write(scra.text+"\n")
 
         file.close()
-
+"""
 
 def genAlg(i,piece):
 
     if (piece == "corners"):
-
         a = [[setting.CorTrain[i%setting.numlineC][0],setting.CorTrain[i%setting.numlineC][1]],setting.corAlgs.cell(setting.CorTrain[i%setting.numlineC][0],setting.CorTrain[i%setting.numlineC][1]).value,setting.lettersCorners[setting.CorTrain[i%setting.numlineC][1]-2]+setting.lettersCorners[setting.CorTrain[i%setting.numlineC][0]-2]]
         return a
+
     elif (piece == "edges"):
         b = [[setting.EdTrain[i%setting.numlineE][0],setting.EdTrain[i%setting.numlineE][1]],setting.edAlgs.cell(setting.EdTrain[i%setting.numlineE][0],setting.EdTrain[i%setting.numlineE][1]).value, setting.lettersEdges[setting.EdTrain[i%setting.numlineE][1]-2]+setting.lettersEdges[setting.EdTrain[i%setting.numlineE][0]-2]]
         return b
