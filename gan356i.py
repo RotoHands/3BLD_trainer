@@ -40,17 +40,6 @@ class AlgorithmLocals:
 
 
 
-
-def faceConversion (faceIndex, amount):
-    faces = ["", "B", "D", "L", "U", "R", "F"]
-    if(amount == 1):
-        return (faces[faceIndex])
-    elif(amount == 3):
-        return(faces[faceIndex] + '\'')
-    elif (amount == 9):
-        return (faces[faceIndex] + '2')
-    else:
-        print("here 1 with amount:" , amount)
 def checkFail(moves):
     if (len(moves) < 2):
         return False
@@ -233,63 +222,6 @@ def Gan356i(piece, timePerLetter,algNumStart,alg, withPair, autoTransitionPerAlg
                     execAlg(alg, withPair, alg.timesUp, True)
                     alg.startPracticeTime = time.time()
                     alg.moves = []
-    def pyauto():
-        pyautogui.click(42, 160)  # options
-        time.sleep(1)
-        pyautogui.click(313, 400)  # timer
-        time.sleep(1)
-        pyautogui.click(436, 413)  # timer
-        time.sleep(1)
-        pyautogui.click(443, 511)  # giiker
-        time.sleep(3)
-        pyautogui.click(588, 146)  # GAN
-        time.sleep(1)
-        pyautogui.click(616, 487)  # OK
-        time.sleep(12)
-        pyautogui.click(431, 189)  # accecpt
-        time.sleep(3)
-        pyautogui.rightClick(431, 189)
-        time.sleep(1)
-        pyautogui.click(369, 420)
-        time.sleep(2)
-        pyautogui.click(664, 141)  # console
-        time.sleep(2)
-        pyautogui.click(539, 681)  # console
-        pyautogui.write('console.clear()')
-        time.sleep(0.5)
-        pyautogui.press('enter')
-        time.sleep(0.5)
-        pyautogui.write("giikerutil")
-        time.sleep(0.5)
-        pyautogui.press('enter')
-        time.sleep(0.5)
-        pyautogui.click(526, 265)
-        time.sleep(0.5)
-        pyautogui.click(540, 367)
-        time.sleep(0.5)
-        pyautogui.click(551, 496)
-        time.sleep(0.5)
-        pyautogui.click(560, 510)
-        time.sleep(0.5)
-        pyautogui.scroll(-500)
-        time.sleep(0.5)
-        pyautogui.rightClick(589, 584)
-        time.sleep(0.5)
-        pyautogui.click(500, 658)
-        time.sleep(0.5)
-        pyautogui.click(39, 113)
-        time.sleep(0.5)
-    def findNewMoves(lastMoves, currentMoves):
-        lastLen = len(lastMoves)
-        if (lastLen != len(currentMoves)):
-            return currentMoves[lastLen:]
-        return []
-
-
-    browser = webdriver.Chrome(ChromeDriverManager().install())
-    browser.get("https://cstimer.net/new")
-    #pyauto()
-    a=input("press enter when finished")
     movesList = ["U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'", "D", "D2", "D'", "L", "L2", "L'", "B", "B2", "B'"]
     moves = []
     alg.algNumber = algNumStart
