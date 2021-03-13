@@ -1,5 +1,4 @@
 ﻿#-*- coding: utf-8 -*-
-from Alg_Locals import AlgorithmLocals
 from gan356i import Gan356i
 from  setting import  init
 

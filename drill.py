@@ -1,11 +1,8 @@
 import openpyxl
 import random
 from shutil import copyfile
-
 import time
-from LocalTrainer import printWord
 import keyboard
-from LocalTrainer import waitS
 import setting
 from algClass import Alg
 from selenium import webdriver
@@ -143,8 +140,8 @@ def saveResNew(piece):
             wsE.cell(row + 27, col).value = currentTimes
             open('timesEd.txt', 'w').close()
     wb.save("ROTO 3bld Algs.xlsx")
-saveResNew("corners")
-saveResNew("edges")
+#saveResNew("corners")
+#saveResNew("edges")
 
 
 

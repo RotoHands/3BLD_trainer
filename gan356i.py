@@ -4,7 +4,6 @@ import time
 from drill import genAlg
 from drill import saveResults
 from algClass import Alg
-from LocalTrainer import printLetterPair2
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 import keyboard
@@ -13,75 +12,52 @@ import pyautogui
 
 
 
-class AlgorithmLocals:
-    uuid = "0000aadc-0000-1000-8000-00805f9b34fb" #Giiker
-    address = "EA:1B:FE:2D:9A:DA" #Giiker
-    #address = "4C:24:98:6A:7A:65"#gan
-    #uuid = "0000fff5-0000-1000-8000-00805f9b34fb"
-    fail = False
-    nextAlg = True
-    success = False
-    letter = ""
-    moves = []
-    index = []
-    results = []  # the results of all the session
-    endTraining = False
-    isFirstfirstAlg = True
-    algStartTime = time.time()
-    algEndTime = time.time()
-    algFinalTime = algEndTime - algStartTime
-    countTraining = 0
-    algNumber = 0
-    timesUp = False
-    startPracticeTime = time.time()
-    tryAgain = 0
+class Trainer:
+    def __init__(self):
+        self.data_move_counter = None
+        self.fail = False
+        self.nextAlg = True
+        self.success = False
+        self.letter = ""
+        self.new_moves = []
+        self.moves = []
+        self.recognize_time = None
+        endTraining = False
+        isFirstfirstAlg = True
+        self.algStartTime = None
+        self.algEndTime = None
+        self.countTraining = 0
+        self.start_practice_time = None
+        self.training_time_per_alg = None
+        timesUp = False
+        tryAgain = 0
 
-    currentAlg = Alg("")
+    def get_restult_alg_time(self):
+        return (self.algEndTime - self.algStartTime)
 
+    def check_next_action(self):
 
-
-def checkFail(moves):
-    if (len(moves) < 2):
+        if (len(self.moves) < 2):
+            return False
+        last_two_moves = self.moves[len(self.moves)-2:len(self.moves)]
+        print(last_two_moves)
+        if (('L' in last_two_moves) and ("L'" in last_two_moves)) :
+            return "Fail"
+        if (('F' in last_two_moves) and ("F'" in last_two_moves)) :
+            return "Next"
+        if (('B' in last_two_moves) and ("B'" in last_two_moves)) :
+            return "Last"
+        if (len(self.moves) >=4):
+            last_four_moves = self.moves[len(self.moves) - 4 : len((self.moves))]
+            if(last_four_moves.count("D'") == 4 or last_four_moves.count("D") == 4):
+                return "Finish"
+        return "Continue"
+    def checkTimesUp (self):
+        if(time.time() - self.start_practice_time > self.training_time_per_alg):
+            self.startPracticeTime = time.time()
+            return True
         return False
-    size = len(moves)
-    if (moves[size - 1] == "L" and moves[size - 2] == "L'"):
-        return  True  # the alg faild, try another time
-    if (moves[size - 1] == "L'" and moves[size - 2] == "L"):
-        return True
-    return False
-def checkTimesUp (auto, alg):
-    if(time.time() - alg.startPracticeTime > auto):
-        print("times up",time.time() - alg.startPracticeTime )
-        alg.startPracticeTime = time.time()
-        return True
-    return False
 
-def checkNextAlg(moves):
-    if (len(moves) < 2):
-        return False
-    size = len(moves)
-    if (moves[size - 1] == "F" and moves[size - 2] == "F'"):
-        return  True  # move to next alg
-    if (moves[size - 1] == "F'" and moves[size - 2] == "F"):
-        return  True  # move to next alg
-    return False
-
-def checkLastAlg(moves):
-    if (len(moves) < 2):
-        return False
-    size = len(moves)
-    if (moves[size - 1] == "B" and moves[size - 2] == "B'"):
-        return  True  # move to next alg
-    if (moves[size - 1] == "B'" and moves[size - 2] == "B"):
-        return  True  # move to next alg
-    return False
-def checkEndTraining(moves):
-    if (len(moves) < 4):
-        return False
-    size = len(moves)
-    if (moves[size - 1] == "D'" and moves[size - 2] == "D'" and moves[size - 3] == "D'" and moves[size - 4] == "D'"):
-        return  True  # move to next alg
-    return False
 def execAlg(alg, withPair, timesUp, algTrainedFinish):
     a = checkNextAlg(alg.moves)
     b = checkLastAlg(alg.moves)

@@ -4,11 +4,7 @@ from bleak import BleakClient
 from decode_gan import aes128
 from decode_gan import get_moves
 from decode_gan import decData
-class Trainer:
-    def __init__(self):
-        self.moves = []
-        self.counter = 0
-        self.new_moves = []
+from gan356i import Trainer
 
 def get_new_moves(data, counter):
     moves = get_moves(data)
@@ -16,7 +12,6 @@ def get_new_moves(data, counter):
     new_moves = []
     for i in range (new_counter-counter):
         new_moves.append(moves[5-i])
-
     return new_moves
 
 async def connect():
@@ -33,14 +28,14 @@ async def connect():
     batt = await server.read_gatt_char(CHRCT_UUID_F7)
     ff5 = decData(await server.read_gatt_char(CHRCT_UUID_F5), decoder)
     trainer = Trainer()
-    trainer.counter = ff5[12]
+    trainer.data_move_counter= ff5[12]
     while (True):
         start = time.time()
         ff5 = decData(await server.read_gatt_char(CHRCT_UUID_F5), decoder)
-        trainer.new_moves = get_new_moves(ff5, trainer.counter)
+        trainer.new_moves = get_new_moves(ff5, trainer.data_move_counter)
         trainer.moves += trainer.new_moves
-        print(trainer.moves)
-        trainer.counter = ff5[12]
+        trainer.data_move_counter = ff5[12]
+        print(trainer.check_next_action())
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(connect())
