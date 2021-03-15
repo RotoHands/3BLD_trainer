@@ -29,6 +29,7 @@ class Trainer:
         self.countTraining = 0
         self.start_practice_time = None
         self.training_time_per_alg = None
+        self.current_alg = Alg("")
         timesUp = False
         tryAgain = 0
 
@@ -45,6 +46,8 @@ class Trainer:
             return "Fail"
         if (('F' in last_two_moves) and ("F'" in last_two_moves)) :
             return "Next"
+        if (self.check_times_up() == True):
+            return "Next"
         if (('B' in last_two_moves) and ("B'" in last_two_moves)) :
             return "Last"
         if (len(self.moves) >=4):
@@ -52,11 +55,20 @@ class Trainer:
             if(last_four_moves.count("D'") == 4 or last_four_moves.count("D") == 4):
                 return "Finish"
         return "Continue"
-    def checkTimesUp (self):
+    def check_times_up (self):
         if(time.time() - self.start_practice_time > self.training_time_per_alg):
             self.startPracticeTime = time.time()
             return True
         return False
+
+    def action_next(self):
+        pass
+
+
+def init_alg_list():
+
+
+
 
 def execAlg(alg, withPair, timesUp, algTrainedFinish):
     a = checkNextAlg(alg.moves)
@@ -77,13 +89,9 @@ def execAlg(alg, withPair, timesUp, algTrainedFinish):
 
     alg.moves = []  #reset moves
 
-
-
-
 def Gan356i(piece, timePerLetter,algNumStart,alg, withPair, autoTransitionPerAlg,tryAgainTimes):
 
     def algorithm(move):
-
         alg.moves.append(move)
         alg.timesUp = checkTimesUp(autoTransitionPerAlg, alg)
 
