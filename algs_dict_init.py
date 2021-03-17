@@ -16,7 +16,7 @@ class alg_detailed:
         self.row_excel = None
         self.col_excel = None
         self.sheet_excel = None
-        self.train_alg = True
+        self.train_alg = False
 
     def __init__(self, alg_string, letter_pair, piece, row_excel, col_excel, sheet_excel, alg_index ):
         self.alg_index = alg_index
@@ -83,7 +83,8 @@ def write_dict_to_pkl():
         dicts = init_algs_dict()
         pickle.dump(dicts, f)
 
+def load_algs_dict():
+    with open("dicts.pkl" , "rb") as f:
+        algs_dict,lp_2_index_edges,lp_2_corners_dict = pickle.load(f)
 
-with open("dicts.pkl" , "rb") as f:
-    algs_dict,lp_2_index_edges,lp_2_corners_dict = pickle.load(f)
-    print(algs_dict[lp_2_corners_dict["סג'"]])
+    return algs_dict,lp_2_index_edges,lp_2_corners_dict
