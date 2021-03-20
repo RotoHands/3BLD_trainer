@@ -26,8 +26,8 @@ class Trainer:
         self.algStartTime = None
         self.algEndTime = None
         self.countTraining = 0
-        self.start_practice_time = None
-        self.training_time_per_alg = None
+        self.start_practice_time = time.time()
+        self.training_time_per_alg = 60
         self.current_alg = Alg("")
         self.action = ""
         self.algs_dict, self.lp_2_index_edges, self.lp_2_corners_dict = load_algs_dict()
@@ -68,7 +68,7 @@ class Trainer:
         pass
 
     def exec_alg_action(self):
-
+        pass
 
     def exec_action(self):
         action = self.action
@@ -77,7 +77,7 @@ class Trainer:
         if (action == "Next"):
             self.next_alg_action()
         if (action == "Exec"):
-            self.new_moves
+            self.new_moves = []
 
         if (action == "Fail"):
             self.failed_alg_action()
@@ -85,7 +85,7 @@ class Trainer:
         if (action == "Train_add"):
             self.train_add_action()
         if (action == "Finish"):
-            self.finish_training()
+            self.finish_training_action()
 
     def get_restult_alg_time(self):
         return (self.algEndTime - self.algStartTime)
