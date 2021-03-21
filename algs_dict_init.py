@@ -83,8 +83,8 @@ def write_dict_to_pkl():
         dicts = init_algs_dict()
         pickle.dump(dicts, f)
 
-def load_algs_dict():
-    with open("dicts.pkl" , "rb") as f:
+def load_algs_dict(path):
+    with open(path , "rb") as f:
         algs_dict,lp_2_index_edges,lp_2_corners_dict = pickle.load(f)
 
     return algs_dict,lp_2_index_edges,lp_2_corners_dict
