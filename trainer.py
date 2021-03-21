@@ -25,7 +25,7 @@ class Trainer:
         self.recognize_time = None
         endTraining = False
         isFirstfirstAlg = True
-        self.algStartTime = None
+        self.algStartTime = 0
         self.algEndTime = None
         self.countTraining = 0
         self.start_practice_time = time.time()
@@ -52,7 +52,7 @@ class Trainer:
         self.current_alg.executeAlg()
         self.current_alg.reverseSelf()
         self.moves = []
-        self.algStartTime = time.time()
+        self.algStartTime = 0
         print(self.algs_dict[self.index_train])
     def next_alg_action(self):
         self.index_train = (self.index_train + 1 )%len(self.algs_dict)
@@ -84,6 +84,9 @@ class Trainer:
         print(solve_time)
     def exec_alg_action(self):
 
+        if(len(self.moves) > 0 and self.algStartTime == 0):
+            self.algStartTime = time.time()
+
         if (self.use_recognize and len(self.moves) > 0 and not self.recognize_time_finished):
             self.recognize_time = time.time() - self.recognize_time
             self.recognize_time_finished = True
@@ -96,9 +99,7 @@ class Trainer:
             self.add_solve_to_dict()
             self.next_alg_action()
         string_moves = ""
-        for a in self.moves:
-            string_moves += a + " "
-        #print(string_moves)
+
 
     def exec_action(self):
 
@@ -146,7 +147,6 @@ class Trainer:
         if (len(self.moves) < 2):
             return "Exec"
         last_two_moves = self.moves[len(self.moves)-2:len(self.moves)]
-        print(last_two_moves)
         if (('L' in last_two_moves) and ("L'" in last_two_moves)) :
             return "Fail"
         if (('F' in last_two_moves) and ("F'" in last_two_moves)) :
@@ -173,7 +173,8 @@ def get_new_moves(data, counter):
     moves = get_moves(data)
     new_counter = data[12]
     new_moves = []
-    for i in range (new_counter-counter):
+
+    for i in range ((new_counter-counter)%256):
         new_moves.append(moves[5-i])
     return new_moves
 
@@ -199,8 +200,7 @@ async def connect():
         start = time.time()
         trainer.data = decData(await server.read_gatt_char(CHRCT_UUID_F5), decoder)
         trainer.new_moves = get_new_moves(trainer.data, trainer.data_move_counter)
-        if(len(trainer.new_moves) >0):
-            print(trainer.new_moves)
+        print(trainer.data_move_counter)
         trainer.moves += trainer.new_moves
         trainer.data_move_counter = trainer.data[12]
         trainer.exec_action()
