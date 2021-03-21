@@ -24,17 +24,16 @@ class Trainer:
         self.recognize_time_finished = False
         self.recognize_time = None
         endTraining = False
-        isFirstfirstAlg = True
         self.algStartTime = 0
         self.algEndTime = None
         self.countTraining = 0
         self.start_practice_time = time.time()
-        self.training_time_per_alg = 60
+        self.training_time_per_alg = 10
         self.action = ""
         self.algs_dict, self.lp_2_index_edges, self.lp_2_corners_dict = load_algs_dict()
         self.index_train = 500
         self.current_alg = Alg(self.algs_dict[self.index_train].alg_string)
-
+        self.reset_alg() # initialize alg
         timesUp = False
         tryAgain = 0
 
@@ -54,15 +53,19 @@ class Trainer:
         self.moves = []
         self.algStartTime = 0
         print(self.algs_dict[self.index_train])
+
     def next_alg_action(self):
         self.index_train = (self.index_train + 1 )%len(self.algs_dict)
         self.reset_alg()
         self.fail_times = 0
+        self.start_practice_time = time.time()
+
 
     def last_alg_action(self):
         self.index_train = (self.index_train - 1) % len(self.algs_dict)
         self.reset_alg()
         self.fail_times = 0
+        self.start_practice_time = time.time()
 
     def failed_alg_action(self):
         self.reset_alg()
@@ -124,26 +127,6 @@ class Trainer:
         return (self.algEndTime - self.algStartTime)
 
     def check_next_action(self):
-        """
-        if (len(self.moves) < 4):
-            return "Exec"
-        last_four_moves = self.moves[len(self.moves)-4:len(self.moves)]
-        if (last_four_moves.count("L'") == 4 or last_four_moves.count("L") == 4) :
-            return "Fail"
-        if (last_four_moves.count("F'") == 4 or last_four_moves.count("F") == 4) :
-            return "Next"
-        #if (self.check_times_up() == True):
-            #return "Next"
-        if (last_four_moves.count("B'") == 4 or last_four_moves.count("B") == 4) :
-            return "Last"
-        if (last_four_moves.count("R'") == 4 or last_four_moves.count("R") == 4) :
-            return "Train_add"
-        if (len(self.moves) >=4):
-            last_four_moves = self.moves[len(self.moves) - 4 : len((self.moves))]
-            if(last_four_moves.count("D'") == 4 or last_four_moves.count("D") == 4):
-                return "Finish"
-        return "Exec"
-        """
         if (len(self.moves) < 2):
             return "Exec"
         last_two_moves = self.moves[len(self.moves)-2:len(self.moves)]
@@ -151,8 +134,8 @@ class Trainer:
             return "Fail"
         if (('F' in last_two_moves) and ("F'" in last_two_moves)) :
             return "Next"
-        #if (self.check_times_up() == True):
-            #return "Next"
+        if (self.check_times_up() == True):
+            return "Next"
         if (('B' in last_two_moves) and ("B'" in last_two_moves)) :
             return "Last"
         #if (('R' in last_two_moves) and ("R'" in last_two_moves)) :
@@ -197,10 +180,9 @@ async def connect():
     trainer.data = decData(await server.read_gatt_char(CHRCT_UUID_F5), decoder)
     trainer.data_move_counter= trainer.data[12]
     while (True):
-        start = time.time()
+
         trainer.data = decData(await server.read_gatt_char(CHRCT_UUID_F5), decoder)
         trainer.new_moves = get_new_moves(trainer.data, trainer.data_move_counter)
-        print(trainer.data_move_counter)
         trainer.moves += trainer.new_moves
         trainer.data_move_counter = trainer.data[12]
         trainer.exec_action()
