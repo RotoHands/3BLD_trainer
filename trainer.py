@@ -11,6 +11,7 @@ from algs_dict_init import alg_detailed
 import pickle
 from datetime import datetime
 import shutil
+from algs_dict_init import load_pkl
 
 class Trainer:
     def __init__(self):
@@ -34,9 +35,11 @@ class Trainer:
         self.index_train = 500
         self.save_timer_diff = 300
         self.save_timer = time.time()
-        self.pkl_path = "dicts.pkl"
+        self.pkl_path = "algs_dict.pkl"
         self.pkl_path_backup = "dicts_backup.pkl"
-        self.algs_dict, self.lp_2_index_edges, self.lp_2_corners_dict = load_algs_dict(self.pkl_path)
+        self.algs_dict = load_pkl(self.pkl_path)
+        self.lp_2_index_edges = load_pkl("lp_2_index_edges.pkl")
+        self.lp_2_corners_dict = load_pkl("lp_2_index_corners.pkl")
 
         self.current_alg = Alg(self.algs_dict[self.index_train].alg_string)
         self.reset_alg() # initialize alg
@@ -46,7 +49,9 @@ class Trainer:
         self.timesUp = False
         self.finish_training = False
         self.try_again_before_string = 3
-
+        self.train_times_per_alg = 1
+        if (self.train_times_per_alg != 1):
+            self.use_recognize = False
 
 
     def reset_alg(self):
@@ -54,7 +59,6 @@ class Trainer:
         if (self.use_recognize):
             self.recognize_time = time.time()
             self.recognize_time_finished = False
-        self.startPracticeTime = time.time()
         self.current_alg.algString = self.algs_dict[self.index_train].alg_string
         self.current_alg.reset()
         self.current_alg.movesToExecute = self.current_alg.algString
@@ -75,6 +79,7 @@ class Trainer:
         self.index_train = (self.index_train - 1) % len(self.algs_dict)
         self.reset_alg()
         self.fail_times = 0
+        self.countTraining = 0
         self.start_practice_time = time.time()
 
     def failed_alg_action(self):
@@ -94,7 +99,7 @@ class Trainer:
     def add_solve_to_dict(self):
         solve_time = float("%.2f"%(time.time() - self.algStartTime))
         if (self.use_recognize):
-            self.recognize_time = time.time()
+            self.recognize_time = float("%.2f"%(self.recognize_time))
             self.algs_dict[self.index_train].solves_times.append(((solve_time, self.recognize_time),datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         else:
             self.algs_dict[self.index_train].solves_times.append(((solve_time),datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
@@ -113,8 +118,13 @@ class Trainer:
             self.current_alg.executeAlg()
 
         if self.current_alg.isSolved:
+            self.countTraining += 1
             self.add_solve_to_dict()
-            self.next_alg_action()
+            if (self.countTraining == self.train_times_per_alg):
+                self.next_alg_action()
+            else:
+                self.reset_alg()
+
 
     def exec_action(self):
 
@@ -138,6 +148,8 @@ class Trainer:
         return (self.algEndTime - self.algStartTime)
 
     def check_next_action(self):
+        if (self.check_times_up() == True):
+            return "Next"
         if (len(self.moves) < 2):
             return "Exec"
         last_two_moves = self.moves[len(self.moves)-2:len(self.moves)]
@@ -145,12 +157,10 @@ class Trainer:
             return "Fail"
         if (('F' in last_two_moves) and ("F'" in last_two_moves)) :
             return "Next"
-        if (self.check_times_up() == True):
-            return "Next"
         if (('B' in last_two_moves) and ("B'" in last_two_moves)) :
             return "Last"
-        #if (('R' in last_two_moves) and ("R'" in last_two_moves)) :
-            #return "Train_add"
+        if (('D' in last_two_moves) and ("D'" in last_two_moves)) :
+            return "Train_add"
         if (len(self.moves) >=4):
             last_four_moves = self.moves[len(self.moves) - 4 : len((self.moves))]
             if(last_four_moves.count("D'") == 4 or last_four_moves.count("D") == 4):
@@ -160,7 +170,7 @@ class Trainer:
     def save_solves(self):
         if((time.time() - self.save_timer > self.save_timer_diff) or self.finish_training):
             with open (self.pkl_path, "wb") as f:
-                pickle.dump((self.algs_dict, self.lp_2_index_edges, self.lp_2_corners_dict), f)
+                pickle.dump((self.algs_dict), f)
                 print("saved!")
             self.save_timer = time.time()
 
@@ -209,7 +219,7 @@ async def connect():
 
     await trainer.ble_server.disconnect()
 
-    for i in range (500, 503):
+    for i in range (500, 504):
         print(trainer.algs_dict[i])
         trainer.print_solves(i)
 

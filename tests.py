@@ -1,3 +1,6 @@
-import datetime
-from datetime import date
-print (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+# -*- coding: utf-8 -*-
+import pickle
+
+with open("algs_dict.pkl", "rb") as f:
+    a = pickle.load(f)
+    print(a[501].__dict__)
