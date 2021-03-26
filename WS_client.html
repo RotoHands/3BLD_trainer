@@ -4,17 +4,28 @@
         <title>WebSocket demo</title>
     </head>
     <body>
-        <p id="p1"></p>
+
+        <h1 id="lp"></h1>
+        <h1 id="timer"></h1>
+        <h1 id="moves"></h1>
+        <h1 id="solve"></h1>
+        <h1 id="alg"></h1>
+        <h1 id="save"></h1>
+        <h1 id="add"></h1>
+
+
 
         <script>
             var ws = new WebSocket("ws://127.0.0.1:5678/");
             ws.onmessage = function (event) {
-                var messages = document.getElementById("p1");
-
-                messages.innerHTML = event.data
+                var data = event.data.toString().split(";");
+                console.log(data)
+                for (d in data){
+                    var element = d.split(":")[0];
+                    var element_data = d.split(":")[1];
+                    document.getElementById(element).innerHTML = element_data;
+                }
             };
         </script>
     </body>
 </html>
-
-Synchronization exame(hello())
