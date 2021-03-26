@@ -12,6 +12,7 @@ import pickle
 from datetime import datetime
 import shutil
 from algs_dict_init import load_pkl
+import websockets
 
 class Trainer:
     def __init__(self):
@@ -40,10 +41,10 @@ class Trainer:
         self.algs_dict = load_pkl(self.pkl_path)
         self.lp_2_index_edges = load_pkl("lp_2_index_edges.pkl")
         self.lp_2_corners_dict = load_pkl("lp_2_index_corners.pkl")
-
+        self.websocket = None
         self.current_alg = Alg(self.algs_dict[self.index_train].alg_string)
         self.reset_alg() # initialize alg
-
+        self.solve_time = None
         self.ble_server = None
         self.addr = "F8:30:02:08:FB:FE"
         self.timesUp = False
@@ -52,6 +53,7 @@ class Trainer:
         self.train_times_per_alg = 1
         if (self.train_times_per_alg != 1):
             self.use_recognize = False
+        self.data_send = ""
 
 
     def reset_alg(self):
@@ -103,7 +105,7 @@ class Trainer:
             self.algs_dict[self.index_train].solves_times.append(((solve_time, self.recognize_time),datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         else:
             self.algs_dict[self.index_train].solves_times.append(((solve_time),datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        print(solve_time)
+        self.solve_time =  solve_time
     def exec_alg_action(self):
 
         if(len(self.moves) > 0 and self.algStartTime == 0):
@@ -193,7 +195,7 @@ def get_new_moves(data, counter):
     return new_moves
 
 
-async def connect():
+async def connect(websocket, path):
     UUID_SUFFIX = '-0000-1000-8000-00805f9b34fb'
     CHRCT_UUID_F3 = '0000fff3' + UUID_SUFFIX  # // prev moves
     CHRCT_UUID_F5 = '0000fff5' + UUID_SUFFIX  # // gyro state, move counter, premoves
@@ -206,24 +208,27 @@ async def connect():
     decoder = aes128(key)
     batt = await trainer.ble_server.read_gatt_char(CHRCT_UUID_F7)
     print(batt[7])
+    trainer.websocket = websocket
     trainer.data = decData(await trainer.ble_server.read_gatt_char(CHRCT_UUID_F5), decoder)
     trainer.data_move_counter= trainer.data[12]
     while (not trainer.finish_training):
 
-        trainer.save_solves()
         trainer.data = decData(await trainer.ble_server.read_gatt_char(CHRCT_UUID_F5), decoder)
         trainer.new_moves = get_new_moves(trainer.data, trainer.data_move_counter)
         trainer.moves += trainer.new_moves
         trainer.data_move_counter = trainer.data[12]
         trainer.exec_action()
+        if (trainer.solve_time != None):
+            await trainer.websocket.send(str(trainer.moves))
 
     await trainer.ble_server.disconnect()
 
     for i in range (500, 504):
         print(trainer.algs_dict[i])
         trainer.print_solves(i)
+start_server = websockets.serve(connect, "127.0.0.1", 5678)
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete(connect())
-
+loop.run_until_complete(start_server)
+loop.run_forever()
 
