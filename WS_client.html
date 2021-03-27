@@ -20,7 +20,7 @@
             ws.onmessage = function (event) {
                 var data_dict = JSON.parse(event.data);
                 console.log(data_dict);
-                for (var key in data_dict){
+                for (var key in data_dict) {
                     document.getElementById(key).innerHTML = data_dict[key];
                 }
             };
