@@ -18,12 +18,10 @@
         <script>
             var ws = new WebSocket("ws://127.0.0.1:5678/");
             ws.onmessage = function (event) {
-                var data = event.data.toString().split(";");
-                console.log(data)
-                for (d in data){
-                    var element = d.split(":")[0];
-                    var element_data = d.split(":")[1];
-                    document.getElementById(element).innerHTML = element_data;
+                var data_dict = JSON.parse(event.data);
+                console.log(data_dict);
+                for (var key in data_dict){
+                    document.getElementById(key).innerHTML = data_dict[key];
                 }
             };
         </script>

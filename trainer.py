@@ -13,9 +13,10 @@ from datetime import datetime
 import shutil
 from algs_dict_init import load_pkl
 import websockets
-
+import  json
 class Trainer:
     def __init__(self):
+        self.data_send = {}
         self.data = None
         self.data_move_counter = None
         self.fail_times = 0
@@ -53,10 +54,10 @@ class Trainer:
         self.train_times_per_alg = 3
         if (self.train_times_per_alg != 1):
             self.use_recognize = False
-        self.data_send = {}
         self.all_train_time = 15
         self.finish_training_time = time.time() + self.all_train_time * 15
         self.string_moves = ""
+
 
     def reset_alg(self):
 
@@ -70,6 +71,7 @@ class Trainer:
         self.current_alg.reverseSelf()
         self.moves = []
         self.algStartTime = 0
+        self.data_send["moves"] = ""
         print(self.algs_dict[self.index_train])
 
     def moves_to_string(self):
@@ -79,14 +81,20 @@ class Trainer:
         return st
     def next_alg_action(self):
         self.index_train = (self.index_train + 1 )%len(self.algs_dict)
-        self.data_send["lp"] = "lp:{};solve:r;add:;".format(self.algs_dict[self.index_train].letter_pair)
+        self.data_send["lp"] = self.algs_dict[self.index_train].letter_pair
+        self.data_send["solve"] = ""
+        self.data_send["add"]  = ""
+        self.data_send["alg"] = ""
         self.reset_alg()
         self.fail_times = 0
         self.start_practice_time = time.time()
 
     def last_alg_action(self):
         self.index_train = (self.index_train - 1) % len(self.algs_dict)
-        self.data_send["lp"] = "lp:{};solve:r;add:;".format(self.algs_dict[self.index_train].letter_pair)
+        self.data_send["lp"] =self.algs_dict[self.index_train].letter_pair
+        self.data_send["solve"] = ""
+        self.data_send["add"]  = ""
+        self.data_send["alg"] = ""
         self.reset_alg()
         self.fail_times = 0
         self.countTraining = 0
@@ -96,18 +104,18 @@ class Trainer:
         self.reset_alg()
         self.fail_times += 1
         if (self.fail_times == self.try_again_before_string):
-            self.data_send["alg"] = "alg:{};".format(self.current_alg.algString)
+            self.data_send["alg"] = self.current_alg.algString
 
     def train_add_action(self):
         self.algs_dict[self.index_train].train_alg = True
         self.reset_alg()
-        self.data_send["add"] = "add:Added;"
+        self.data_send["add"] = "added"
 
     def finish_training_action(self):
         self.finish_training = True
         self.save_solves()
         shutil.copy(self.pkl_path, self.pkl_path_backup)
-        self.data_send["save"] = "save:saved!"
+        self.data_send["save"] = "saved!"
 
     def add_solve_to_dict(self):
         solve_time = float("%.2f"%(time.time() - self.algStartTime))
@@ -136,13 +144,13 @@ class Trainer:
             if (self.countTraining == self.train_times_per_alg):
                 self.next_alg_action()
             else:
-                self.data_send["solve"] = "solve:{}, ;".format(self.solve_time)
+                self.data_send["solve"] = str(self.solve_time)
                 self.reset_alg()
         else:
             string_moves = self.moves_to_string()
             if(string_moves != self.string_moves):
                 self.string_moves = string_moves
-                self.data_send["moves"] = "moves:{};".format(self.moves_to_string())
+                self.data_send["moves"] = self.moves_to_string()
 
     def exec_action(self):
 
@@ -230,15 +238,15 @@ async def connect(websocket, path):
     while (not trainer.finish_training):
 
         if (trainer.finish_training_time - time.time() % 30 == 0):
-            trainer.data_send["timer"] = "timer:{},{};".format(str(int(trainer.finish_training_time - time.time())/60),str(int(trainer.finish_training_time - time.time())%60))
+            trainer.data_send["timer"] = "{},{}".format(str(int(trainer.finish_training_time - time.time())/60),str(int(trainer.finish_training_time - time.time())%60))
         trainer.data = decData(await trainer.ble_server.read_gatt_char(CHRCT_UUID_F5), decoder)
         trainer.new_moves = get_new_moves(trainer.data, trainer.data_move_counter)
         trainer.moves += trainer.new_moves
         trainer.data_move_counter = trainer.data[12]
         trainer.exec_action()
-        if (trainer.solve_time != None):
-            await trainer.websocket.send(str(trainer.data_send))
-
+        if (trainer.data_send):
+            await trainer.websocket.send(json.dumps(trainer.data_send))
+        trainer.data_send = {}
     await trainer.ble_server.disconnect()
 
     for i in range (500, 504):
