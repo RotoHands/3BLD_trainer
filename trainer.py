@@ -57,6 +57,7 @@ class Trainer:
         self.string_moves = ""
         self.solve_times_alg = ""
         self.timer_show_interval = 10
+
     def reset_alg(self):
 
         if self.use_recognize:
@@ -259,7 +260,7 @@ async def connect(websocket, path):
         trainer.print_solves(i)
 
 
-start_server = websockets.serve(connect, "127.0.0.1", 5678)
+start_server = websockets.serve(connect, "10.0.0.12", 5678)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(start_server)
