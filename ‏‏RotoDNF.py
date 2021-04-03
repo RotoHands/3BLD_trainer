@@ -1,8 +1,5 @@
-    from bleak import BleakClient
+from bleak import BleakClient
 import asyncio
-from algClass import Alg
-from testMove1 import faceConversion
-from testMove1 import AlgorithmLocals
 import time
 from openpyxl import load_workbook
 import openpyxl
@@ -10,7 +7,6 @@ import permutation
 import copy
 import keyboard
 import webbrowser
-from LocalTrainer import printLetterPair2
 
 def scrambleGen():
     scramblesTxt  = open ("scrambles.txt", "r")

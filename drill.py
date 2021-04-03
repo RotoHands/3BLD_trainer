@@ -1,11 +1,8 @@
 import openpyxl
 import random
 from shutil import copyfile
-
 import time
-from LocalTrainer import printWord
 import keyboard
-from LocalTrainer import waitS
 import setting
 from algClass import Alg
 from selenium import webdriver
@@ -15,6 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 
+"""
 def genScra():
     browser = webdriver.Chrome(ChromeDriverManager().install())
     browser.get("https://cstimer.net")
@@ -31,14 +29,14 @@ def genScra():
                 file.write(scra.text+"\n")
 
         file.close()
-
+"""
 
 def genAlg(i,piece):
 
     if (piece == "corners"):
-
         a = [[setting.CorTrain[i%setting.numlineC][0],setting.CorTrain[i%setting.numlineC][1]],setting.corAlgs.cell(setting.CorTrain[i%setting.numlineC][0],setting.CorTrain[i%setting.numlineC][1]).value,setting.lettersCorners[setting.CorTrain[i%setting.numlineC][1]-2]+setting.lettersCorners[setting.CorTrain[i%setting.numlineC][0]-2]]
         return a
+
     elif (piece == "edges"):
         b = [[setting.EdTrain[i%setting.numlineE][0],setting.EdTrain[i%setting.numlineE][1]],setting.edAlgs.cell(setting.EdTrain[i%setting.numlineE][0],setting.EdTrain[i%setting.numlineE][1]).value, setting.lettersEdges[setting.EdTrain[i%setting.numlineE][1]-2]+setting.lettersEdges[setting.EdTrain[i%setting.numlineE][0]-2]]
         return b
@@ -142,8 +140,8 @@ def saveResNew(piece):
             wsE.cell(row + 27, col).value = currentTimes
             open('timesEd.txt', 'w').close()
     wb.save("ROTO 3bld Algs.xlsx")
-saveResNew("corners")
-saveResNew("edges")
+#saveResNew("corners")
+#saveResNew("edges")
 
 
 
